@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ApiForgetRequest;
 use App\Http\Requests\ApiLoginRequest;
 use App\Http\Requests\ApiRegisterRequest;
+use App\Http\Requests\ApiResetRequest;
 use App\Models\User;
+use App\PasswordReset;
+use Carbon\Carbon;
 
 
 class AuthController extends Controller
@@ -17,7 +21,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login',"register"]]);
+        $this->middleware('auth:api', ['except' => ['login',"register","forget"]]);
     }
 
     /**
@@ -91,7 +95,6 @@ class AuthController extends Controller
 
 
     public function register(ApiRegisterRequest $request){
-
         $input = $request->all();
         $input["role_id"] = 2;
         $input["status"] = 0;
@@ -127,4 +130,38 @@ class AuthController extends Controller
 
 
     }
+
+
+    public function forget(ApiResetRequest $request){
+        try{
+            $reset_token = \Str::random(16);
+            $user = User::firstWhere("email",$request->get("email"));
+            if($user){
+                $passwordReset = PasswordReset::firstWhere("email",$request->get("email"));
+                if($passwordReset != null){
+                    $passwordReset->delete();
+                }
+                $pr = new PasswordReset();
+
+                $pr->fill(["email"=>$request->get("email"),"token"=>$reset_token,"created_at"=>Carbon::now()->toDateTimeString()])->save();
+            }
+            return response()->json(
+                [
+                    "success"=>true,
+                    "message"=>"Ссылка для сброса пароля успешно отправлена на почту!"
+                ],200
+            );
+
+        }
+        catch (\Exception $exception){
+            return response()->json(
+                [
+                    "success"=>false,
+                    "message"=>$exception
+                ],401
+            );
+        }
+
+    }
+
 }

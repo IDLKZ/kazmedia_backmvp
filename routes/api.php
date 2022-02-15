@@ -24,5 +24,6 @@ Route::group([
     Route::post('refresh', [\App\Http\Controllers\Api\AuthController::class,"refresh"]);
     Route::post('me', [\App\Http\Controllers\Api\AuthController::class,"me"]);
     Route::post("register",[\App\Http\Controllers\Api\AuthController::class,"register"]);
+    Route::post("forget",[\App\Http\Controllers\Api\AuthController::class,"forget"]);
 
 });
