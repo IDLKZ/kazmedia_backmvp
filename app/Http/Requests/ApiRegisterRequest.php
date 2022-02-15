@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class ApiLoginRequest extends FormRequest
+class ApiRegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,10 +26,15 @@ class ApiLoginRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|exists:users,email|max:50',
-            'password' => 'required|min:6'
+            'email' => 'required|email|unique:users,email|max:225',
+            'password' => 'required|min:6|max:20',
+            "type_id" => 'required|numeric|digits_between:1,3',
+            "name" => 'required|max:255|min:2',
+            "phone"=>"required",
+            "bin"=>"required|digits:12"
         ];
     }
+
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
@@ -37,14 +42,5 @@ class ApiLoginRequest extends FormRequest
             'message'   => 'Validation errors',
             'data'      => $validator->errors()
         ],400));
-    }
-
-    public function messages() //OPTIONAL
-    {
-        return [
-            'email.required' => 'Почта обязательна для заполнения',
-            'email.email' => 'Email не валиден',
-            "password.required"=>"Поле пароль обязателен для заполнения"
-        ];
     }
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ApiLoginRequest;
-use Illuminate\Http\Request;
+use App\Http\Requests\ApiRegisterRequest;
+use App\Models\User;
+
 
 class AuthController extends Controller
 {
@@ -15,7 +17,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        $this->middleware('auth:api', ['except' => ['login',"register"]]);
     }
 
     /**
@@ -85,5 +87,44 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
+    }
+
+
+    public function register(ApiRegisterRequest $request){
+
+        $input = $request->all();
+        $input["role_id"] = 2;
+        $input["status"] = 0;
+        $input["password"] = bcrypt($input["password"]);
+        $user = new User();
+        try{
+            if($user->fill($input)->save()){
+                return response()->json(
+                    [
+                        "success"=>true,
+                        "message"=>"Вы успешно зарегистрировались!"
+                    ],200
+                );
+            }
+            else{
+                return response()->json(
+                    [
+                        "success"=>false,
+                        "message"=>"Упс, что-то пошло не так"
+                    ],401
+                );
+            }
+        }
+        catch (\Exception $exception){
+                return response()->json(
+                    [
+                        "success"=>false,
+                        "message"=>"Упс, что-то пошло не так"
+                    ],401
+                );
+
+        }
+
+
     }
 }
