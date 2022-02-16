@@ -127,7 +127,6 @@ class ApiServerController extends Controller
             );
         }
         catch (\Exception $exception){
-            dd($exception);
             return response()->json(
                 [
                     "success"=>false,
