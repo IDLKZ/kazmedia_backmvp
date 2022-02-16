@@ -25,5 +25,8 @@ Route::group([
     Route::post('me', [\App\Http\Controllers\Api\AuthController::class,"me"]);
     Route::post("register",[\App\Http\Controllers\Api\AuthController::class,"register"]);
     Route::post("forget",[\App\Http\Controllers\Api\AuthController::class,"forget"]);
+});
 
+Route::group(["middleware" => "auth:api"],function (){
+    Route::get("getRooms",[\App\Http\Controllers\Api\ApiServerController::class,"getRooms"]);
 });
