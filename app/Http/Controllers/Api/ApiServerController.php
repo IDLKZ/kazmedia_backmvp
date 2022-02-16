@@ -82,4 +82,32 @@ class ApiServerController extends Controller
         }
 
     }
+
+    public function getCalendar($date, $id)
+    {
+        $url = "http://78.40.109.119/KMO/hs/app/calendar/".$date."/".$id;
+        $response = $this->response->get($url);
+        if($response->status() == 200){
+            $listOfRooms = json_decode($response->body());
+            try{
+                return response()->json($listOfRooms, 200);
+            }
+            catch (\Exception $exception){
+                return response()->json(
+                    [
+                        "success"=>false,
+                        "message"=>"Ошибка",
+                    ],401
+                );
+            }
+        }
+        else{
+            return response()->json(
+                [
+                    "success"=>false,
+                    "message"=>"Ошибка",
+                ],401
+            );
+        }
+    }
 }

@@ -29,4 +29,6 @@ Route::group([
 
 Route::group(["middleware" => "auth:api"],function (){
     Route::get("getRooms",[\App\Http\Controllers\Api\ApiServerController::class,"getRooms"]);
+
+    Route::get('getCalendar/{date}/{id}', [\App\Http\Controllers\Api\ApiServerController::class, 'getCalendar']);
 });
