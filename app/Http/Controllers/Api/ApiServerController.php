@@ -66,7 +66,7 @@ class ApiServerController extends Controller
                 return response()->json(
                     [
                         "success"=>false,
-                        "message"=>"Ошибка",
+                        "message"=>"Ошибка ${exception}",
                     ],401
                 );
             }
