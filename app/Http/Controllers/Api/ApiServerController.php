@@ -115,14 +115,21 @@ class ApiServerController extends Controller
     public function getCalculation(ApiCalculationRequest $request){
         //"http://78.40.109.119/KMO/hs/app/calculateprice/{RoomID}/{RequestDate}/{Crane}/{CameraAmount}/{PrompterAmount}/{VideoWall}/{CG}/{StudioMonitor}/{WiredMicAmount}/{WirelessMicAmount}/{RadioPAmount}/{RadioMicAmount}/{SoundProc}/{PhoneHybrid}/{Skype}/{Studio}/{Prod}/{News}/{Cinegy}/{MCR}";
         try{
-            $url = "http://78.40.109.119/KMO/hs/app/calculateprice/".$request->get("RoomID") ."/".$request->get("RequestDate") ."/".$request->get("Crane")."/".$request->get("CameraAmount")."/".$request->get("PrompterAmount")."/".$request->get("VideoWall")."/".$request->get("CGAmount")."/".$request->get("StudioMonitor")."/".$request->get("WiredMicAmount")."/".$request->get("WirelessMicAmount")."/".$request->get("RadioPAmount")."/".$request->get("RadioMicAmount")."/".$request->get("SoundProc")."/".$request->get("PhoneHybrid")."/".$request->get("Skype")."/".$request->get("IngestStudio")."/".$request->get("IngestProd")."/".$request->get("IngestNews")."/".$request->get("IngestCinegy")."/".$request->get("MCR");
+
+            $url = "http://78.40.109.119/KMO/hs/app/calculateprice/".$request->get("RoomID") ."/".$request->get("RequestDate") ."/".($request->get("Crane") == false ? 0 : 1)."/".$request->get("CameraAmount")."/".$request->get("PrompterAmount")."/".$request->get("VideoWall")."/".$request->get("CGAmount")."/".$request->get("StudioMonitor")."/".$request->get("WiredMicAmount")."/".$request->get("WirelessMicAmount")."/".$request->get("RadioPAmount")."/".$request->get("RadioMicAmount")."/".($request->get("SoundProc") == false ? 0 : 1)."/".($request->get("PhoneHybrid") == false ? 0 : 1)."/".($request->get("Skype") == false ? 0 : 1)."/". ($request->get("IngestStudio") == false ? 0 : 1)."/".($request->get("IngestProd") == false ? 0 : 1)."/".($request->get("IngestNews") == false ? 0 : 1)."/". ($request->get("IngestCinegy")== false ? 0 : 1 ) ."/". ($request->get("MCR") == false ? 0 : 1);
             $response = $this->response->get($url);
-            $data = json_decode($response->body());
+            $data = json_decode($response->body(),flags: JSON_OBJECT_AS_ARRAY);
+            if($data == null || $data["Status"] == false){
+                if(isset($data["Description"])){
+                    return response()->json(["success"=>false,'errors'=>$data["Description"]],200);
+                }
+                return response()->json(["success"=>false,'errors'=>["Глобальная ошибка - попробуйте позже"]],200);
+            }
             return response()->json(
                 [
                     "success"=>true,
                     "message"=>"Сумма проекта",
-                    "data"=>["price"=>184.5]
+                    "data"=>["price"=>$data["Price"]]
                 ],200
             );
         }
@@ -130,8 +137,9 @@ class ApiServerController extends Controller
             return response()->json(
                 [
                     "success"=>false,
-                    "message"=>"Ошибка",
-                ],401
+                    "message"=>"$exception",
+                ],
+                400
             );
         }
 
